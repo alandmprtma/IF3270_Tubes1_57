@@ -5,6 +5,18 @@ class Initializer:
     @staticmethod
     def initialize(shape):
         raise NotImplementedError
+    
+    def get_initializer(cls, name):
+        initializers = {
+            'zeros': ZeroInitializer,
+            'uniform': RandomUniformInitializer,
+            'normal': RandomNormalInitializer
+        }
+        
+        if name.lower() in initializers:
+            return initializers[name.lower()]
+        else:
+            raise ValueError(f"Initializer '{name}' not supported. Choose from: {list(initializers.keys())}")
 
 class ZeroInitializer(Initializer):
     """Inisialisasi bobot dengan nol"""

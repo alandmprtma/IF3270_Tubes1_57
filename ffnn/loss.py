@@ -9,6 +9,20 @@ class Loss:
     @staticmethod
     def derivative(y_true, y_pred):
         raise NotImplementedError
+    
+    @classmethod
+    def get_loss(cls, name):
+        loss_functions = {
+            'mse': MSE,
+            'binary_crossentropy': BinaryCrossEntropy,
+            'categorical_crossentropy': CategoricalCrossEntropy
+        }
+        
+        if name.lower() in loss_functions:
+            return loss_functions[name.lower()]
+        else:
+            raise ValueError(f"Loss function '{name}' not supported. Choose from: {list(loss_functions.keys())}")
+
 
 class MSE(Loss):
     """Fungsi Mean Squeared Error"""
@@ -18,7 +32,8 @@ class MSE(Loss):
     
     @staticmethod
     def derivative(y_true, y_pred):
-        return 2 * (y_pred - y_true) / y_true.shape[0]
+        batch_size = y_true.shape[0]
+        return 2 * (y_pred - y_true) / batch_size
 
 class BinaryCrossEntropy(Loss):
     """Fungsi Binary Cross Entropy loss """
@@ -32,7 +47,8 @@ class BinaryCrossEntropy(Loss):
     def derivative(y_true, y_pred):
         epsilon = 1e-15 # Untuk menghindari log(0)
         y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
-        return -(y_true / y_pred - (1 - y_true) / (1 - y_pred)) / y_true.shape[0]
+        batch_size = y_true.shape[0]
+        return -(y_true / y_pred - (1 - y_true) / (1 - y_pred)) / batch_size
 
 class CategoricalCrossEntropy(Loss):
     """Categorical Cross Entropy loss function"""
@@ -44,8 +60,10 @@ class CategoricalCrossEntropy(Loss):
     
     @staticmethod
     def derivative(y_true, y_pred):
-        return (y_pred - y_true) / y_true.shape[0]
+        batch_size = y_true.shape[0]
+        return -y_true / y_pred / batch_size
     
     @staticmethod
     def softmax_derivative(y_true, y_pred):
-        return (y_pred - y_true) / y_true.shape[0]
+        batch_size = y_true.shape[0]
+        return (y_pred - y_true) / batch_size

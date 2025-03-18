@@ -1,17 +1,34 @@
 import numpy as np
 
-class Activation:   
-    """Base Class"""
+class Activation:
+    """Basis kelas untuk fungsi aktivasi"""
     @staticmethod
     def activate(x):
+        """Menghitung fungsi aktivasi"""
         raise NotImplementedError
         
     @staticmethod
     def derivative(x):
+        """Menghitung turunan fungsi aktivasi"""
         raise NotImplementedError
+    
+    @classmethod
+    def get_activation(cls, name):
+        """Pabrik untuk memproduksi fungsi aktivasi berdasarkan input nama"""
+        activations = {
+            'linear': Linear,
+            'relu': ReLU,
+            'sigmoid': Sigmoid,
+            'tanh': Tanh,
+            'softmax': Softmax
+        }
+        if name.lower() in activations:
+            return activations[name.lower()]
+        else:
+            raise ValueError(f"Activation function '{name}' not supported. Choose from: {list(activations.keys())}")
 
 class Linear(Activation):
-    """Fungsi Linear -> Linear(x) = x"""
+    """fungsi aktivasi Linear : f(x) = x"""
     @staticmethod
     def activate(x):
         return x
@@ -21,7 +38,7 @@ class Linear(Activation):
         return np.ones_like(x)
 
 class ReLU(Activation):
-    """Fungsi ReLU -> ReLU(x) = max(0, x)"""
+    """fungsi aktivasi ReLU: f(x) = max(0, x)"""
     @staticmethod
     def activate(x):
         return np.maximum(0, x)
@@ -31,7 +48,7 @@ class ReLU(Activation):
         return np.where(x > 0, 1, 0)
 
 class Sigmoid(Activation):
-    """ Fungsi Sigmoid -> sigmoid(x) = 1 / (1 + exp(-x))"""
+    """Fungsi aktivasi sigmoid: f(x) = 1 / (1 + exp(-x))"""
     @staticmethod
     def activate(x):
         return 1 / (1 + np.exp(-np.clip(x, -500, 500)))
@@ -42,7 +59,7 @@ class Sigmoid(Activation):
         return s * (1 - s)
 
 class Tanh(Activation):
-    """Fungsi Hyperbole Tangent -> tanh(x) = (exp(x) - exp(-x)) / (exp(x) + exp(-x))"""
+    """Fungsi aktivasi hyperbolic tangent: f(x) = (exp(x) - exp(-x)) / (exp(x) + exp(-x))"""
     @staticmethod
     def activate(x):
         return np.tanh(x)
@@ -52,7 +69,7 @@ class Tanh(Activation):
         return 1 - np.tanh(x)**2
 
 class Softmax(Activation):
-    """Fungsi Softmax -> f(x_i) = exp(x_i) / sum(exp(x_j))"""
+    """Fungsi aktivasi softmax: f(x_i) = exp(x_i) / sum(exp(x_j))"""
     @staticmethod
     def activate(x):
         exp_x = np.exp(x - np.max(x, axis=1, keepdims=True))
@@ -60,7 +77,10 @@ class Softmax(Activation):
     
     @staticmethod
     def derivative(x):
-        # Ini masih ragu banget, soalnya turunan Softmax kompleks, biasanya diiitung pake matriks Jacobian
-        # Untuk kesederhanaan, ini pake pendekatan: s * (1 - s) untuk klasifikasi biner
-        s = Softmax.activate(x)
-        return s * (1 - s)
+        """
+        Catatan : Turunan softmax adalah matriks Jacobian untuk setiap vektor input
+        Implementasi ini disederhanakan untuk digunakan dengan fungsi loss categorical cross-entropy
+        di mana turunan softmax yang digabungkan dengan categorical cross-entropy
+        disederhanakan menjadi (y_pred - y_true)
+        """
+        return Softmax.activate(x)
