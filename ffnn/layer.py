@@ -1,6 +1,6 @@
 import numpy as np
-from activation import Activation
-from initialization import ZeroInitializer, RandomUniformInitializer, RandomNormalInitializer
+from .activation import Activation
+from .initialization import ZeroInitializer, RandomUniformInitializer, RandomNormalInitializer
 
 class Layer:
     """
@@ -58,17 +58,17 @@ class Layer:
     
     def backward(self, dvalues):
         """Backward pass to compute gradients"""
-        # Gradients on parameters
-        self.dW = np.dot(self.inputs.T, dvalues)
-        self.db = np.sum(dvalues, axis=0, keepdims=True)
-        
-        # Gradient on inputs to this layer (for backprop to previous layer)
+        # First determine the gradient of the activation function
         if self.activation.__class__.__name__ == 'Softmax':
             # Special case for softmax
             dz = dvalues
         else:
             # Get gradient of activation function
             dz = dvalues * self.activation.derivative(self.z)
+        
+        # Now compute gradients on weights and biases using dz
+        self.dW = np.dot(self.inputs.T, dz)
+        self.db = np.sum(dz, axis=0, keepdims=True)
             
         # Return gradient on values entering this layer
         return np.dot(dz, self.W.T)

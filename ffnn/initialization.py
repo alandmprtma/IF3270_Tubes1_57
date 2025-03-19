@@ -6,6 +6,7 @@ class Initializer:
     def initialize(shape):
         raise NotImplementedError
     
+    @classmethod
     def get_initializer(cls, name):
         initializers = {
             'zeros': ZeroInitializer,
