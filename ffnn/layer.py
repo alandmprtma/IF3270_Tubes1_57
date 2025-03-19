@@ -4,31 +4,30 @@ from .initialization import ZeroInitializer, RandomUniformInitializer, RandomNor
 
 class Layer:
     """
-    Neural network layer implementation
+    Implementasi layer dalam neural network
     """
     def __init__(self, input_size, output_size, activation='linear', 
                  weight_initializer='uniform', **initializer_params):
         self.input_size = input_size
         self.output_size = output_size
         
-        # Set activation function
+        # Ngeset activation function
         activation_class = Activation.get_activation(activation)
         self.activation = activation_class
         
-        # Initialize weights and biases
+        # Ngeinisialisasi bobot dan bias
         self._initialize_weights(weight_initializer, **initializer_params)
         
-        # Storage for forward pass
+        # Penyimpanan buat forward prog
         self.inputs = None
         self.z = None  # pre-activation
         self.output = None  # post-activation
         
-        # Storage for gradients
+        # Buat nyimpen gradient
         self.dW = None
         self.db = None
     
     def _initialize_weights(self, initializer_name, **params):
-        # Initialize weights
         if initializer_name == 'zeros':
             self.W = ZeroInitializer.initialize((self.input_size, self.output_size))
         elif initializer_name == 'uniform':
@@ -46,29 +45,24 @@ class Layer:
         else:
             raise ValueError(f"Initializer '{initializer_name}' not supported")
             
-        # Initialize biases to zero
         self.b = np.zeros((1, self.output_size))
     
     def forward(self, inputs):
-        """Forward pass through the layer"""
+        """Ngelakuin forward propagation di layer"""
         self.inputs = inputs
         self.z = np.dot(inputs, self.W) + self.b
         self.output = self.activation.activate(self.z)
         return self.output
     
     def backward(self, dvalues):
-        """Backward pass to compute gradients"""
-        # First determine the gradient of the activation function
+        """Ngelakuin backward propagation buat dapetin gradient"""
         if self.activation.__class__.__name__ == 'Softmax':
-            # Special case for softmax
+            # Kasus khusus softmax
             dz = dvalues
         else:
-            # Get gradient of activation function
             dz = dvalues * self.activation.derivative(self.z)
         
-        # Now compute gradients on weights and biases using dz
         self.dW = np.dot(self.inputs.T, dz)
         self.db = np.sum(dz, axis=0, keepdims=True)
             
-        # Return gradient on values entering this layer
         return np.dot(dz, self.W.T)
