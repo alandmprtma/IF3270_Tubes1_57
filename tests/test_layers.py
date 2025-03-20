@@ -38,7 +38,7 @@ class TestLayer:
         
         # Test with custom activation
         layer = Layer(self.input_size, self.output_size, activation='sigmoid')
-        assert layer.activation.__name__ == 'Sigmoid'
+        assert layer.activation.__class__.__name__ == 'Sigmoid'
     
     def test_forward_pass(self):
         """Test forward propagation"""

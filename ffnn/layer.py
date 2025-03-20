@@ -13,7 +13,7 @@ class Layer:
         
         # Ngeset activation function
         activation_class = Activation.get_activation(activation)
-        self.activation = activation_class
+        self.activation = activation_class()
         
         # Ngeinisialisasi bobot dan bias
         self._initialize_weights(weight_initializer, **initializer_params)
