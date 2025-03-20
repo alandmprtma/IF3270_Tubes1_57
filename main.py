@@ -1,4 +1,3 @@
-# main.py
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.datasets import load_digits, load_iris
@@ -10,25 +9,22 @@ def main():
     print("FFNN Neural Network Visualization Demo")
     print("======================================")
     
-    # Choose a dataset (iris has fewer features than digits)
-    use_iris = True  # Set to False to use digits dataset instead
+    use_iris = True
     
     if use_iris:
-        # Load Iris dataset (only 4 features)
         print("\nLoading iris dataset...")
         iris = load_iris()
         X = iris.data
         y = iris.target.reshape(-1, 1)
-        feature_count = X.shape[1]  # 4 for iris
-        class_count = 3  # 3 classes for iris
+        feature_count = X.shape[1] 
+        class_count = 3 
     else:
-        # Load digits dataset (64 features, too many to visualize clearly)
         print("\nLoading digits dataset...")
         digits = load_digits()
         X = digits.data
         y = digits.target.reshape(-1, 1)
-        feature_count = X.shape[1]  # 64 for digits
-        class_count = 10  # 10 classes for digits
+        feature_count = X.shape[1]  
+        class_count = 10  
         
         # Option: Use PCA to reduce feature dimensions for visualization
         # from sklearn.decomposition import PCA
@@ -53,7 +49,7 @@ def main():
     # Create a smaller neural network
     print("\nCreating neural network...")
     input_size = feature_count
-    hidden_size = 5  # Reduced from 32 to 5 for better visualization
+    hidden_size = 5  
     output_size = class_count
     
     model = FFNN(loss='categorical_crossentropy')

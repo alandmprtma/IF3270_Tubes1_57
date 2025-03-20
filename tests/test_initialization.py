@@ -9,7 +9,7 @@ from ffnn.initialization import Initializer, ZeroInitializer, RandomUniformIniti
 
 def test_initializer_factory():
     """Test the initializer factory method"""
-    # Fix the missing @classmethod decorator in your code first
+
     assert Initializer.get_initializer('zeros') == ZeroInitializer
     assert Initializer.get_initializer('uniform') == RandomUniformInitializer
     assert Initializer.get_initializer('normal') == RandomNormalInitializer

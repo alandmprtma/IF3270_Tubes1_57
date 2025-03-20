@@ -145,7 +145,18 @@ def test_backward_propagation():
     
     # Test weight updates
     initial_W0 = model.layers[0].W.copy()
+    initial_b0 = model.layers[0].b.copy()
     learning_rate = 0.1
     model.update_weights(learning_rate)
     
-    # Verify
+    # Verify weights have changed by the expected amount
+    w_diff = initial_W0 - model.layers[0].W
+    expected_diff = learning_rate * model.layers[0].dW
+    assert np.allclose(w_diff, expected_diff)
+    
+    # Also check bias updates
+    b_diff = initial_b0 - model.layers[0].b
+    expected_b_diff = learning_rate * model.layers[0].db
+    assert np.allclose(b_diff, expected_b_diff)
+    
+    print("✅ Backward propagation test passed")
