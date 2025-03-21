@@ -72,6 +72,8 @@ class Softmax(Activation):
     """Fungsi aktivasi softmax: f(x_i) = exp(x_i) / sum(exp(x_j))"""
     @staticmethod
     def activate(x):
+        # Membatasi nilai input untuk menghindari underflow/overflow
+        x = np.clip(x, -1e10, 1e10)
         exp_x = np.exp(x - np.max(x, axis=1, keepdims=True))
         return exp_x / np.sum(exp_x, axis=1, keepdims=True)
     

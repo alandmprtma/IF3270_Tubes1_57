@@ -83,11 +83,13 @@ class FFNN:
                 
                 # Forward pass
                 y_pred = self.forward(X_batch)
-                
+                y_pred = np.clip(y_pred, 1e-15, 1 - 1e-15)
+                y_batch = np.clip(y_pred, 1e-15, 1 - 1e-15)
+
                 # Calculate loss
                 batch_loss = self.loss_function.calculate(y_batch, y_pred)
                 epoch_loss += batch_loss * (end_idx - start_idx) / n_samples
-                
+
                 # Backward pass
                 self.backward(y_batch, y_pred)
                 
