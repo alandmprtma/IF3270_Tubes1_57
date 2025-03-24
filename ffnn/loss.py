@@ -62,7 +62,7 @@ class CategoricalCrossEntropy(Loss):
     def derivative(y_true, y_pred):
         batch_size = y_true.shape[0]
         epsilon = 1e-8  # Nilai kecil untuk menghindari pembagian dengan nol
-        return -y_true / (y_pred + epsilon) / batch_size
+        return y_true / (y_pred + epsilon) / batch_size  # Removed negative sign for gradient descent
     
     @staticmethod
     def softmax_derivative(y_true, y_pred):

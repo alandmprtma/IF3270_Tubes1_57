@@ -87,6 +87,9 @@ def test_softmax():
     assert np.allclose(np.sum(output, axis=1), np.ones(x.shape[0]))
     np.testing.assert_array_almost_equal(output, expected)
     
-    # Basic check for derivative (simplified implementation)
-    derivative = Softmax.derivative(x)
-    assert derivative.shape == x.shape
+    # Test that derivative method raises NotImplementedError as expected
+    try:
+        Softmax.derivative(x)
+        assert False, "Softmax.derivative() should raise NotImplementedError"
+    except NotImplementedError:
+        pass  # This is the expected behavior

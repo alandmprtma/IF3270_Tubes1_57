@@ -36,8 +36,7 @@ class FFNN:
     
     def backward(self, y_true, y_pred):
         # First calculate loss gradient
-        if (hasattr(self.layers[-1].activation, '__name__') and 
-            self.layers[-1].activation.__class__.__name__ == 'Softmax' and 
+        if (self.layers[-1].activation.__class__.__name__ == 'Softmax' and 
             self.loss_function.__name__ == 'CategoricalCrossEntropy'):
             # Special case for softmax + categorical crossentropy
             dvalues = self.loss_function.softmax_derivative(y_true, y_pred)
@@ -84,7 +83,6 @@ class FFNN:
                 # Forward pass
                 y_pred = self.forward(X_batch)
                 y_pred = np.clip(y_pred, 1e-15, 1 - 1e-15)
-                y_batch = np.clip(y_pred, 1e-15, 1 - 1e-15)
 
                 # Calculate loss
                 batch_loss = self.loss_function.calculate(y_batch, y_pred)
@@ -384,7 +382,7 @@ class FFNN:
         
         for i, layer in enumerate(self.layers):
             layer_name = f"Layer {i+1}"
-            activation = layer.activation.__class__.__name__ if hasattr(layer.activation, '__name__') else "?"
+            activation = layer.activation.__class__.__name__
             params = layer.W.size + layer.b.size
             total_params += params
             

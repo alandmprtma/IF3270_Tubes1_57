@@ -80,9 +80,10 @@ class Softmax(Activation):
     @staticmethod
     def derivative(x):
         """
-        Catatan : Turunan softmax adalah matriks Jacobian untuk setiap vektor input
-        Implementasi ini disederhanakan untuk digunakan dengan fungsi loss categorical cross-entropy
-        di mana turunan softmax yang digabungkan dengan categorical cross-entropy
-        disederhanakan menjadi (y_pred - y_true)
+        Turunan softmax adalah matriks Jacobian dan tidak boleh digunakan langsung.
+        Saat digabungkan dengan cross-entropy loss, gunakan softmax_derivative di CategoricalCrossEntropy.
         """
-        return Softmax.activate(x)
+        raise NotImplementedError(
+            "Turunan softmax tidak boleh dipanggil langsung. " +
+            "Gunakan penanganan kasus khusus di model.backward() sebagai gantinya."
+        )
