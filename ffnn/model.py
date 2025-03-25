@@ -7,6 +7,7 @@ import networkx as nx
 from .layer import Layer
 from .loss import Loss
 import os
+from tqdm import tqdm
 
 class FFNN:
     """Feed-Forward Neural Network implementation with all required functionalities"""
@@ -159,12 +160,13 @@ class FFNN:
         # Add edges with weights
         edge_labels = {}  # Dictionary to store edge labels
         
+        print("Adding edges with weights:")
         for l, layer in enumerate(self.layers):
             source_size = self.layer_sizes[l]
             target_size = self.layer_sizes[l+1]
             
             # Add edges between this layer and next
-            for i in range(source_size):
+            for i in tqdm(range(source_size), desc=f"Layer {l} to Layer {l+1}", leave=False):
                 for j in range(target_size):
                     source = f"input_{i}" if l == 0 else f"layer{l}_{i}"
                     target = f"layer{l+1}_{j}"
@@ -180,12 +182,14 @@ class FFNN:
                     # Add formatted weight as edge label
                     edge_labels[(source, target)] = f"{weight:.2f}"
         
+        print("Draw network")
         # Draw the network
         edges = G.edges()
         weights = [G[u][v]['weight'] for u, v in edges]
         gradients = [G[u][v]['gradient'] for u, v in edges]
         widths = [G[u][v]['width'] for u, v in edges]
         
+        print("Normalize weights to map to colors")
         # Normalize weights to map to colors
         if weights:
             max_weight = max(abs(w) for w in weights) if weights else 1
@@ -193,13 +197,15 @@ class FFNN:
         else:
             max_weight = 1
             edge_colors = ['gray']
-            
+
+        print("Draw edges")    
         # Draw edges
         nx.draw_networkx_edges(
             G, pos, edgelist=edges, width=widths, 
             edge_color=edge_colors, arrows=True, arrowsize=10, ax=ax
         )
         
+        print("Draw edge labels")
         # Draw edge labels (weights)
         nx.draw_networkx_edge_labels(
             G, pos, edge_labels=edge_labels, 
@@ -208,16 +214,18 @@ class FFNN:
             font_family='sans-serif',
             ax=ax
         )
-        
+        print("Draw nodes")
         # Draw nodes
         nx.draw_networkx_nodes(
             G, pos, node_size=500, 
             node_color=node_colors, edgecolors='black', ax=ax
         )
         
+        print("Draw labels")
         # Draw labels
         nx.draw_networkx_labels(G, pos, labels=node_labels, ax=ax)
         
+        print("Draw legend")
         # Add legend for edge colors
         sm = plt.cm.ScalarMappable(
             norm=plt.Normalize(-max_weight, max_weight), 
