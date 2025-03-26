@@ -11,7 +11,9 @@ class Initializer:
         initializers = {
             'zeros': ZeroInitializer,
             'uniform': RandomUniformInitializer,
-            'normal': RandomNormalInitializer
+            'normal': RandomNormalInitializer,
+            'xavier': XavierInitializer,
+            'he': HeInitializer
         }
         
         if name.lower() in initializers:
@@ -40,3 +42,19 @@ class RandomNormalInitializer(Initializer):
         if seed is not None:
             np.random.seed(seed)
         return np.random.normal(mean, std, shape)
+
+class XavierInitializer(Initializer):
+    """Xavier initialization: var(W) = 1 / n_in"""
+    @staticmethod
+    def initialize(shape):
+        fan_in, fan_out = shape
+        limit = np.sqrt(1 / fan_in)
+        return np.random.uniform(-limit, limit, shape)
+    
+class HeInitializer(Initializer):
+    """He initialization: var(W) = 2 / n_in"""
+    @staticmethod
+    def initialize(shape):
+        fan_in, _ = shape
+        std = np.sqrt(2 / fan_in)
+        return np.random.normal(0, std, shape)

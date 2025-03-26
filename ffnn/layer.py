@@ -1,6 +1,6 @@
 import numpy as np
 from .activation import Activation
-from .initialization import ZeroInitializer, RandomUniformInitializer, RandomNormalInitializer
+from .initialization import ZeroInitializer, RandomUniformInitializer, RandomNormalInitializer, XavierInitializer, HeInitializer
 
 class Layer:
     """
@@ -42,6 +42,10 @@ class Layer:
             seed = params.get('seed', None)
             self.W = RandomNormalInitializer.initialize(
                 (self.input_size, self.output_size), mean, std, seed)
+        elif initializer_name == 'xavier':
+            self.W = XavierInitializer.initialize((self.input_size, self.output_size))
+        elif initializer_name == 'he':
+            self.W = HeInitializer.initialize((self.input_size, self.output_size))
         else:
             raise ValueError(f"Initializer '{initializer_name}' not supported")
             
