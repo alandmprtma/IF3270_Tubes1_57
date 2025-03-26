@@ -18,12 +18,14 @@ class FFNN:
     
     def add(self, input_size, output_size, activation='linear', 
             weight_initializer='uniform', **initializer_params):
-        # Store layer size for visualization
+        
+        # Cek kalo misal ini layer pertama atau bukan
         if not self.layers:
             self.layer_sizes.append(input_size)
+        
         self.layer_sizes.append(output_size)
         
-        # Create and add layer
+        # Ngebuat layer baru ke neural network sama nambahin ke list layers
         layer = Layer(input_size, output_size, activation, 
                      weight_initializer, **initializer_params)
         self.layers.append(layer)
@@ -31,27 +33,32 @@ class FFNN:
     
     def forward(self, X):
         output = X
+
+        # Iterasi untuk setiap layer
         for layer in self.layers:
+            # Ngelakuin forward propagation dengan inputnya berupa hasil output layer sebelumnya
             output = layer.forward(output)
+
+        # Ngembaliin output akhir dari neural network
         return output
     
     def backward(self, y_true, y_pred):
-        # First calculate loss gradient
+        # Cek kalo loss functionnya sama dengan softmax dan activation functionnya sama dengan categorical crossentropy di layer terakhir
+        # Karena kalo iya ada special case buat ngitung gradient awalnya
         if (self.layers[-1].activation.__class__.__name__ == 'Softmax' and 
             self.loss_function.__name__ == 'CategoricalCrossEntropy'):
-            # Special case for softmax + categorical crossentropy
             dvalues = self.loss_function.softmax_derivative(y_true, y_pred)
         else:
-            # Regular case
             dvalues = self.loss_function.derivative(y_true, y_pred)
         
-        # Backpropagate through all layers
+        # Meneruskan gradien dari belakang ke depan (reversed)
         for layer in reversed(self.layers):
             dvalues = layer.backward(dvalues)
         
         return dvalues
     
     def update_weights(self, learning_rate):
+        #Memperbarui bobot untuk semua layer menggunakan gradien yang dihitung
         for layer in self.layers:
             layer.W -= learning_rate * layer.dW
             layer.b -= learning_rate * layer.db
