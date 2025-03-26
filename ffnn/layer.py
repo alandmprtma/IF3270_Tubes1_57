@@ -28,6 +28,7 @@ class Layer:
         self.db = None
     
     def _initialize_weights(self, initializer_name, **params):
+        """Buat menginisialisasi bobot"""
         if initializer_name == 'zeros':
             self.W = ZeroInitializer.initialize((self.input_size, self.output_size))
         elif initializer_name == 'uniform':
@@ -48,7 +49,8 @@ class Layer:
             self.W = HeInitializer.initialize((self.input_size, self.output_size))
         else:
             raise ValueError(f"Initializer '{initializer_name}' not supported")
-            
+        
+        # Ngeinisialisasi bias
         self.b = np.zeros((1, self.output_size))
     
     def forward(self, inputs):
