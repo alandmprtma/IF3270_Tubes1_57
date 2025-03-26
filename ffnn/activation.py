@@ -20,7 +20,9 @@ class Activation:
             'relu': ReLU,
             'sigmoid': Sigmoid,
             'tanh': Tanh,
-            'softmax': Softmax
+            'softmax': Softmax,
+            'swish': Swish,
+            'leakyrelu': LeakyReLU
         }
         if name.lower() in activations:
             return activations[name.lower()]
@@ -87,3 +89,25 @@ class Softmax(Activation):
             "Turunan softmax tidak boleh dipanggil langsung. " +
             "Gunakan penanganan kasus khusus di model.backward() sebagai gantinya."
         )
+class Swish(Activation):
+    """Fungsi aktivasi Swish: f(x) = x * sigmoid(x)"""
+    @staticmethod
+    def activate(x):
+        return x * Sigmoid.activate(x)
+    
+    @staticmethod
+    def derivative(x):
+        s = Sigmoid.activate(x)
+        return s + x * s * (1 - s)
+
+class LeakyReLU(Activation):
+    """Fungsi aktivasi Leaky ReLU: f(x) = x jika x > 0, else alpha * x"""
+    alpha = 0.01  # Nilai default alpha
+    
+    @staticmethod
+    def activate(x):
+        return np.where(x > 0, x, LeakyReLU.alpha * x)
+    
+    @staticmethod
+    def derivative(x):
+        return np.where(x > 0, 1, LeakyReLU.alpha)
