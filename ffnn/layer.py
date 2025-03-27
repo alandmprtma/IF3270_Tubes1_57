@@ -26,7 +26,6 @@ class Layer:
         # Buat nyimpen gradient
         self.dW = None
         self.db = None
-
     
     def _initialize_weights(self, initializer_name, **params):
         """Buat menginisialisasi bobot"""
@@ -58,7 +57,6 @@ class Layer:
         """Ngelakuin forward propagation di layer"""
         self.inputs = inputs
         self.z = np.dot(inputs, self.W) + self.b
-
         self.output = self.activation.activate(self.z)
         return self.output
     
@@ -69,7 +67,7 @@ class Layer:
             dz = dvalues
         else:
             dz = dvalues * self.activation.derivative(self.z)
-            
+        
         self.dW = np.dot(self.inputs.T, dz)
         self.db = np.sum(dz, axis=0, keepdims=True)
             

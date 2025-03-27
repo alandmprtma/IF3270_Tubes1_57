@@ -1,4 +1,3 @@
-# model.py
 import numpy as np
 import pickle
 import matplotlib.pyplot as plt
@@ -11,6 +10,7 @@ from tqdm import tqdm
 
 class FFNN:
     def __init__(self, loss='mse',l1_lambda=0.0, l2_lambda=0.0):
+        self.loss_name = loss # buat nyimpen nama loss function
         self.layers = []
         self.loss_function = Loss.get_loss(loss)
         self.layer_sizes = []
@@ -378,17 +378,42 @@ class FFNN:
         if directory:
             os.makedirs(directory, exist_ok=True)
         
-        # Simpan model ke file
+        # Cek jenis loss function yang digunakan
+        if hasattr(self, 'loss_name'):
+            # Jika loss_name sudah disimpan saat inisialisasi 
+            loss_id = self.loss_name
+        else:
+            print(f"Loss function type: {type(self.loss_function)}")
+            
+            # Default ke categorical_crossentropy jika tidak bisa ditentukan
+            loss_id = 'categorical_crossentropy'
+            
+            # Coba ambil nama dari instance
+            try:
+                loss_name = self.loss_function.__class__.__name__
+                # Pemetaan nama ke identifier
+                loss_mapping = {
+                    'MeanSquaredError': 'mse',
+                    'CategoricalCrossEntropy': 'categorical_crossentropy',
+                    'BinaryCrossEntropy': 'binary_crossentropy'
+                }
+                if loss_name in loss_mapping:
+                    loss_id = loss_mapping[loss_name]
+            except:
+                # Jika gagal, gunakan default
+                pass
+                
+        # Simpan model ke file dengan identifier loss function
         model_data = {
             'layer_sizes': self.layer_sizes,
             'layers': self.layers,
-            'loss_function': self.loss_function.__name__
+            'loss_function': loss_id
         }
         
         with open(filepath, 'wb') as f:
             pickle.dump(model_data, f)
-            
-        print(f"Model saved to {filepath}")
+                
+        print(f"Model saved to {filepath} with loss: {loss_id}")
     
     @classmethod
     def load(cls, filepath):
