@@ -76,8 +76,9 @@ class Layer:
             dz = dvalues * self.activation.derivative(self.z)
         
         if self.rmsnorm:
-            dz = self.rmsnorm.backward(dz)
-
+            dz, grad_scale = self.rmsnorm.backward(dz)
+            self.rmsnorm.update_scale(self.rmsnorm.scale - self.rmsnorm.learning_rate * grad_scale)
+            
         self.dW = np.dot(self.inputs.T, dz)
         self.db = np.sum(dz, axis=0, keepdims=True)
             
