@@ -8,15 +8,18 @@ from .layer import Layer
 from .loss import Loss
 import os
 from tqdm import tqdm
+from .RMSNorm import RMSNorm
 
 class FFNN:
-    def __init__(self, loss='mse'):
+    def __init__(self, loss='mse',l1_lambda=0.0, l2_lambda=0.0):
         self.layers = []
         self.loss_function = Loss.get_loss(loss)
         self.layer_sizes = []
+        self.l1_lambda = l1_lambda
+        self.l2_lambda = l2_lambda 
     
     def add(self, input_size, output_size, activation='linear', 
-            weight_initializer='uniform', **initializer_params):
+            weight_initializer='uniform', rmsnorm=False, **initializer_params):
         
         # Cek kalo misal ini layer pertama atau bukan
         if not self.layers:
@@ -26,7 +29,8 @@ class FFNN:
         
         # Ngebuat layer baru ke neural network sama nambahin ke list layers
         layer = Layer(input_size, output_size, activation, 
-                     weight_initializer, **initializer_params)
+                  weight_initializer, rmsnorm=rmsnorm, **initializer_params)
+
         self.layers.append(layer)
         return self
     
@@ -95,6 +99,13 @@ class FFNN:
 
                 # Hitung lossnya
                 batch_loss = self.loss_function.calculate(y_batch, y_pred)
+
+                # Tambahkan regularisasi L1 dan L2 untuk Batch Loss
+                if self.l1_lambda > 0 or self.l2_lambda > 0:
+                    l1_penalty = self.l1_lambda * sum(np.sum(np.abs(layer.W)) for layer in self.layers)
+                    l2_penalty = self.l2_lambda * sum(np.sum(layer.W**2) for layer in self.layers)
+                    batch_loss += l1_penalty + l2_penalty
+
                 epoch_loss += batch_loss * (end_idx - start_idx) / n_samples
 
                 # Lakuin backward propagation
@@ -111,6 +122,13 @@ class FFNN:
                 X_val, y_val = validation_data
                 y_val_pred = self.forward(X_val)
                 val_loss = self.loss_function.calculate(y_val, y_val_pred)
+
+                # Tambahkan regularisasi L1 dan L2 untuk Validation Loss
+                if self.l1_lambda > 0 or self.l2_lambda > 0:
+                    l1_penalty_val = self.l1_lambda * sum(np.sum(np.abs(layer.W)) for layer in self.layers)
+                    l2_penalty_val = self.l2_lambda * sum(np.sum(layer.W**2) for layer in self.layers)
+                    val_loss += l1_penalty_val + l2_penalty_val
+
                 history['val_loss'].append(val_loss)
             
             # Tunjukin progress kalo ada
