@@ -186,13 +186,13 @@ class FFNN:
         # Tambahkan edge dengan bobot
         edge_labels = {}  # Dictionary untuk menyimpan label edge
         
-        print("Menambahkan edge dengan bobot:")
+        print("Add edges with weights: ")
         for l, layer in enumerate(self.layers):
             source_size = self.layer_sizes[l]
             target_size = self.layer_sizes[l+1]
             
             # Tambahkan edge antara layer ini dan layer berikutnya
-            for i in tqdm(range(source_size), desc=f"Layer {l} ke Layer {l+1}", leave=False):
+            for i in tqdm(range(source_size), desc=f"Layer {l} to Layer {l+1}", leave=False):
                 for j in range(target_size):
                     source = f"input_{i}" if l == 0 else f"layer{l}_{i}"
                     target = f"layer{l+1}_{j}"
@@ -206,16 +206,16 @@ class FFNN:
                     G.add_edge(source, target, weight=weight, gradient=gradient, width=width)
                     
                     # Tambahkan bobot terformat sebagai label edge
-                    edge_labels[(source, target)] = f"{weight:.2f}"
+                    edge_labels[(source, target)] = f"W:{weight:.2f}\nG:{gradient:.2f}"
         
-        print("Menggambar jaringan")
+        print("Draw network")
         # Gambar jaringan
         edges = G.edges()
         weights = [G[u][v]['weight'] for u, v in edges]
         gradients = [G[u][v]['gradient'] for u, v in edges]
         widths = [G[u][v]['width'] for u, v in edges]
         
-        print("Normalisasi bobot untuk pemetaan ke warna")
+        print("Normalize weights to map to colors")
         # Normalisasi bobot untuk pemetaan ke warna
         if weights:
             max_weight = max(abs(w) for w in weights) if weights else 1
@@ -224,14 +224,14 @@ class FFNN:
             max_weight = 1
             edge_colors = ['gray']
 
-        print("Menggambar edge")    
+        print("Draw edges")    
         # Gambar edge
         nx.draw_networkx_edges(
             G, pos, edgelist=edges, width=widths, 
             edge_color=edge_colors, arrows=True, arrowsize=10, ax=ax
         )
         
-        print("Menggambar label edge")
+        print("Draw edge labels")
         # Gambar label edge (bobot)
         nx.draw_networkx_edge_labels(
             G, pos, edge_labels=edge_labels, 
@@ -240,27 +240,27 @@ class FFNN:
             font_family='sans-serif',
             ax=ax
         )
-        print("Menggambar node")
+        print("Draw nodes")
         # Gambar node
         nx.draw_networkx_nodes(
             G, pos, node_size=500, 
             node_color=node_colors, edgecolors='black', ax=ax
         )
         
-        print("Menggambar label")
+        print("Draw node labels")
         # Gambar label
         nx.draw_networkx_labels(G, pos, labels=node_labels, ax=ax)
         
-        print("Menggambar legenda")
+        print("Draw legend")
         # Tambahkan legenda untuk warna edge
         sm = plt.cm.ScalarMappable(
             norm=plt.Normalize(-max_weight, max_weight), 
             cmap=plt.cm.RdBu
         )
         sm.set_array([])
-        fig.colorbar(sm, ax=ax, label='Nilai Bobot')
+        fig.colorbar(sm, ax=ax, label='Weight Value')
         
-        ax.set_title("Struktur Neural Network dengan Bobot")
+        ax.set_title("Neural Network Structure with Weights")
         ax.axis('off')
         plt.tight_layout()
         plt.show()
@@ -279,7 +279,7 @@ class FFNN:
         
         for i, layer_idx in enumerate(layers):
             if layer_idx < 0 or layer_idx >= len(self.layers):
-                print(f"Peringatan: Layer {layer_idx} tidak ada.")
+                print(f"Warning: Layer {layer_idx} doesn't exist.")
                 continue
                 
             layer = self.layers[layer_idx]
@@ -288,26 +288,26 @@ class FFNN:
             # Plot distribusi bobot
             weights = layer.W.flatten()
             ax.hist(weights, bins=50, alpha=0.7)
-            ax.set_title(f"Distribusi Bobot Layer {layer_idx+1}")
-            ax.set_xlabel("Nilai Bobot")
-            ax.set_ylabel("Frekuensi")
+            ax.set_title(f"Layer {layer_idx+1} Weight Distribution")
+            ax.set_xlabel("Weight Value")
+            ax.set_ylabel("Frequency")
             
             # Tambahkan garis vertikal untuk mean dan std
             mean = np.mean(weights)
             std = np.std(weights)
             ax.axvline(mean, color='r', linestyle='dashed', linewidth=1, 
-                    label=f'Rata-rata = {mean:.4f}')
+                      label=f'Mean = {mean:.4f}')
             ax.axvline(mean + std, color='g', linestyle='dashed', linewidth=1, 
-                    label=f'Rata-rata + Std = {mean+std:.4f}')
+                      label=f'Mean + Std = {mean+std:.4f}')
             ax.axvline(mean - std, color='g', linestyle='dashed', linewidth=1, 
-                    label=f'Rata-rata - Std = {mean-std:.4f}')
+                      label=f'Mean - Std = {mean-std:.4f}')
             
             # Tambahkan distribusi bias sebagai inset
             biases = layer.b.flatten()
-            if len(biases) > 1:  # Hanya tambahkan inset jika ada banyak bias
+            if len(biases) > 1: # Hanya tambahkan inset jika ada banyak bias
                 inset_ax = ax.inset_axes([0.65, 0.65, 0.3, 0.3])
                 inset_ax.hist(biases, bins=min(20, len(biases)), alpha=0.7, color='orange')
-                inset_ax.set_title("Distribusi Bias")
+                inset_ax.set_title("Bias Distribution")
                 inset_ax.tick_params(axis='both', which='both', labelsize=6)
             
             ax.legend(loc='upper right')
@@ -329,7 +329,7 @@ class FFNN:
         
         for i, layer_idx in enumerate(layers):
             if layer_idx < 0 or layer_idx >= len(self.layers):
-                print(f"Peringatan: Layer {layer_idx} tidak ada.")
+                print(f"Warning: Layer {layer_idx} doesn't exist.")
                 continue
                 
             layer = self.layers[layer_idx]
@@ -337,35 +337,35 @@ class FFNN:
             
             # Periksa apakah gradien ada
             if not hasattr(layer, 'dW') or layer.dW is None:
-                ax.text(0.5, 0.5, "Tidak ada data gradien (perlu backward pass)", 
-                    ha='center', va='center', transform=ax.transAxes)
+                ax.text(0.5, 0.5, "No gradient data (need backward pass)", 
+                       ha='center', va='center', transform=ax.transAxes)
                 continue
             
             # Plot distribusi gradien
             gradients = layer.dW.flatten()
             ax.hist(gradients, bins=50, alpha=0.7, color='purple')
-            ax.set_title(f"Distribusi Gradien Bobot Layer {layer_idx+1}")
-            ax.set_xlabel("Nilai Gradien")
-            ax.set_ylabel("Frekuensi")
+            ax.set_title(f"Layer {layer_idx+1} Weight Gradient Distribution")
+            ax.set_xlabel("Gradient Value")
+            ax.set_ylabel("Frequency")
             
             # Tambahkan garis vertikal untuk mean dan std
             mean = np.mean(gradients)
             std = np.std(gradients)
             ax.axvline(mean, color='r', linestyle='dashed', linewidth=1, 
-                    label=f'Rata-rata = {mean:.4f}')
+                      label=f'Mean = {mean:.4f}')
             ax.axvline(mean + std, color='g', linestyle='dashed', linewidth=1, 
-                    label=f'Rata-rata + Std = {mean+std:.4f}')
+                      label=f'Mean + Std = {mean+std:.4f}')
             ax.axvline(mean - std, color='g', linestyle='dashed', linewidth=1, 
-                    label=f'Rata-rata - Std = {mean-std:.4f}')
+                      label=f'Mean - Std = {mean-std:.4f}')
             
             # Tambahkan distribusi gradien bias sebagai inset
             if hasattr(layer, 'db') and layer.db is not None:
                 bias_gradients = layer.db.flatten()
-                if len(bias_gradients) > 1:  # Hanya tambahkan inset jika ada banyak gradien bias
+                if len(bias_gradients) > 1:  # Only add inset if there are multiple bias gradients
                     inset_ax = ax.inset_axes([0.65, 0.65, 0.3, 0.3])
                     inset_ax.hist(bias_gradients, bins=min(20, len(bias_gradients)), 
-                                alpha=0.7, color='orange')
-                    inset_ax.set_title("Distribusi Gradien Bias")
+                                 alpha=0.7, color='orange')
+                    inset_ax.set_title("Bias Gradient Distribution")
                     inset_ax.tick_params(axis='both', which='both', labelsize=6)
             
             ax.legend(loc='upper right')
