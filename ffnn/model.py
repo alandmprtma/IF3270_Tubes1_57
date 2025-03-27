@@ -8,7 +8,6 @@ from .layer import Layer
 from .loss import Loss
 import os
 from tqdm import tqdm
-from .RMSNorm import RMSNorm
 
 class FFNN:
     def __init__(self, loss='mse',l1_lambda=0.0, l2_lambda=0.0):
@@ -19,7 +18,7 @@ class FFNN:
         self.l2_lambda = l2_lambda 
     
     def add(self, input_size, output_size, activation='linear', 
-            weight_initializer='uniform', rmsnorm=False, **initializer_params):
+            weight_initializer='uniform', **initializer_params):
         
         # Cek kalo misal ini layer pertama atau bukan
         if not self.layers:
@@ -29,7 +28,7 @@ class FFNN:
         
         # Ngebuat layer baru ke neural network sama nambahin ke list layers
         layer = Layer(input_size, output_size, activation, 
-                  weight_initializer, rmsnorm=rmsnorm, **initializer_params)
+                  weight_initializer, **initializer_params)
 
         self.layers.append(layer)
         return self
