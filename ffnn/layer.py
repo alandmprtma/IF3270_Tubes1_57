@@ -1,14 +1,13 @@
 import numpy as np
 from .activation import Activation
 from .initialization import ZeroInitializer, RandomUniformInitializer, RandomNormalInitializer, XavierInitializer, HeInitializer
-from .RMSNorm import RMSNorm
 
 class Layer:
     """
     Implementasi layer dalam neural network
     """
     def __init__(self, input_size, output_size, activation='linear', 
-                 weight_initializer='uniform', rmsnorm=False, **initializer_params):
+                 weight_initializer='uniform', **initializer_params):
         self.input_size = input_size
         self.output_size = output_size
         
@@ -28,7 +27,6 @@ class Layer:
         self.dW = None
         self.db = None
 
-        self.rmsnorm = RMSNorm(output_size) if rmsnorm else None
     
     def _initialize_weights(self, initializer_name, **params):
         """Buat menginisialisasi bobot"""
@@ -61,9 +59,6 @@ class Layer:
         self.inputs = inputs
         self.z = np.dot(inputs, self.W) + self.b
 
-        if self.rmsnorm:
-            self.z = self.rmsnorm.forward(self.z)
-
         self.output = self.activation.activate(self.z)
         return self.output
     
@@ -74,10 +69,6 @@ class Layer:
             dz = dvalues
         else:
             dz = dvalues * self.activation.derivative(self.z)
-        
-        if self.rmsnorm:
-            dz, grad_scale = self.rmsnorm.backward(dz)
-            self.rmsnorm.update_scale(self.rmsnorm.scale - self.rmsnorm.learning_rate * grad_scale)
             
         self.dW = np.dot(self.inputs.T, dz)
         self.db = np.sum(dz, axis=0, keepdims=True)
