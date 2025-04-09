@@ -60,8 +60,17 @@ class FFNN:
         return dvalues
     
     def update_weights(self, learning_rate):
-        #Memperbarui bobot untuk semua layer menggunakan gradien yang dihitung
         for layer in self.layers:
+            # Menambahkan regularisasi L1 dan L2 ke gradien bobot
+            if self.l1_lambda > 0:
+                l1_grad = self.l1_lambda * np.sign(layer.W)
+                layer.dW += l1_grad
+            
+            if self.l2_lambda > 0:
+                l2_grad = 2 * self.l2_lambda * layer.W
+                layer.dW += l2_grad
+                
+            # Update weights with gradients
             layer.W -= learning_rate * layer.dW
             layer.b -= learning_rate * layer.db
     
